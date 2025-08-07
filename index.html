@@ -4,9 +4,991 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gameonix</title>
-  <link rel="stylesheet" href="style.css" />
-  <script defer src="script.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    :root {
+      /* Dark Mode Colors (Default) */
+      --bg-gradient: linear-gradient(135deg, #8B0000 0%, #4A0000 25%, #2D0000 50%, #1A0000 75%, #000000 100%);
+      --text-color: white;
+      --text-color-light: rgba(255, 255, 255, 0.8);
+      --text-color-muted: rgba(255, 255, 255, 0.6);
+      --header-bg: rgba(0, 0, 0, 0.4);
+      --border-color: rgba(255, 255, 255, 0.1);
+      --card-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+      --card-border: rgba(255, 255, 255, 0.2);
+      --primary-color: #ff4757;
+      --primary-color-light: #ff6b6b;
+      --primary-shadow-color: rgba(255, 71, 87, 0.3);
+      --primary-shadow-hover: rgba(255, 71, 87, 0.4);
+      --toggle-bg: linear-gradient(45deg, #333, #555);
+    }
+
+    /* Light Mode */
+    body.light-mode {
+      --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      --text-color: #1a1a2e;
+      --text-color-light: rgba(26, 26, 46, 0.8);
+      --text-color-muted: rgba(26, 26, 46, 0.6);
+      --header-bg: rgba(255, 255, 255, 0.4);
+      --border-color: rgba(26, 26, 46, 0.1);
+      --card-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.3) 100%);
+      --card-border: rgba(26, 26, 46, 0.2);
+      --toggle-bg: linear-gradient(45deg, #ccc, #eee);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-color);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    /* Animated particles background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.3), transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.2), transparent),
+        radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.3), transparent),
+        radial-gradient(2px 2px at 160px 30px, rgba(255,255,255,0.2), transparent);
+      background-repeat: repeat;
+      background-size: 200px 100px;
+      animation: sparkle 20s linear infinite;
+      pointer-events: none;
+      z-index: 1;
+    }
+     body.light-mode::before {
+      opacity: 0.3;
+     }
+
+    @keyframes sparkle {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(180deg); }
+    }
+
+    /* Header */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: var(--header-bg);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      transition: background 0.4s ease, border-color 0.4s ease;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      background: linear-gradient(45deg, var(--primary-color-light), var(--primary-color), #ff3742);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 20px var(--primary-shadow-color);
+    }
+    
+    .icons {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .icons i {
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: var(--text-color);
+    }
+    
+    .icons i:hover {
+      color: var(--primary-color);
+      transform: scale(1.2);
+    }
+
+    /* Toggle Switch */
+    .toggle-container {
+      position: relative;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 30px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider-toggle {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--toggle-bg);
+      border-radius: 30px;
+      transition: 0.4s;
+    }
+
+    .slider-toggle:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 4px;
+      bottom: 4px;
+      background: linear-gradient(45deg, var(--primary-color), var(--primary-color-light));
+      border-radius: 50%;
+      transition: 0.4s;
+      box-shadow: 0 0 10px var(--primary-shadow-color);
+    }
+
+    input:checked + .slider-toggle {
+      background: linear-gradient(45deg, var(--primary-color), var(--primary-color-light));
+    }
+
+    input:checked + .slider-toggle:before {
+      transform: translateX(30px);
+      background: white;
+    }
+
+    /* Main slider section */
+    .slider-container {
+      position: relative;
+      margin: 2rem;
+      border-radius: 15px;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(5px);
+      z-index: 5;
+    }
+
+    .slider {
+      position: relative;
+      width: 100%;
+      height: 400px;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+      visibility: hidden;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 15px;
+    }
+
+    .indicators {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 10;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    body.light-mode .dot {
+      background: rgba(0,0,0,0.3);
+    }
+
+    .dot.active {
+      background: var(--primary-color);
+      box-shadow: 0 0 15px var(--primary-shadow-color);
+    }
+
+    /* Categories section */
+    h2, .section-title {
+      text-align: center;
+      margin: 3rem 0 1rem;
+      font-size: 2.2rem;
+      background: linear-gradient(45deg, var(--primary-color-light), var(--primary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+      z-index: 5;
+    }
+
+    .view-all {
+      text-align: center;
+      margin-bottom: 2rem;
+      position: relative;
+      z-index: 5;
+    }
+
+    .view-all a {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .view-all a:hover {
+      color: var(--primary-color-light);
+      text-shadow: 0 0 10px var(--primary-shadow-color);
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      padding: 0 2rem;
+      margin-bottom: 3rem;
+      position: relative;
+      z-index: 5;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--card-border);
+      border-radius: 15px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: translateY(-10px) scale(1.05);
+      box-shadow: 0 20px 40px var(--primary-shadow-color);
+      border-color: var(--primary-color);
+    }
+
+    .card img {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      margin-bottom: 1rem;
+      border-radius: 10px;
+    }
+
+    .card p {
+      font-weight: 500;
+      color: var(--text-color);
+    }
+
+    /* Services section */
+    .services-section {
+      padding: 3rem 2rem;
+      position: relative;
+      z-index: 5;
+    }
+
+    .services-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .service-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(15px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 2rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .service-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255, 71, 87, 0.1), transparent);
+      transform: rotate(45deg);
+      transition: all 0.5s ease;
+      opacity: 0;
+    }
+
+    .service-card:hover::before {
+      opacity: 1;
+      animation: shimmer 2s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) rotate(45deg); }
+    }
+
+    .service-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 25px 50px var(--primary-shadow-hover);
+      border-color: var(--primary-color);
+    }
+
+    .card-image {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(45deg, rgba(255, 71, 87, 0.2), rgba(255, 107, 107, 0.2));
+      position: relative;
+      z-index: 2;
+    }
+
+    .card-logo {
+      width: 40px;
+      height: 40px;
+      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+    }
+    body.light-mode .card-logo {
+        filter: none;
+    }
+
+    .card-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+
+    .service-title {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      color: var(--text-color);
+      font-weight: 600;
+    }
+
+    .cashback-info {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: linear-gradient(45deg, rgba(255, 71, 87, 0.2), rgba(255, 107, 107, 0.2));
+      padding: 0.8rem;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 71, 87, 0.3);
+    }
+
+    .cashback-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .cashback-icon svg {
+      width: 100%;
+      height: 100%;
+      stroke: var(--primary-color);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .cashback-text {
+      color: var(--primary-color-light);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    /* === NEW SECTION: Why Us === */
+    .why-us-section {
+        padding: 1rem 2rem 3rem;
+        position: relative;
+        z-index: 5;
+    }
+    .section-description {
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto 3rem auto;
+        color: var(--text-color-light);
+        line-height: 1.7;
+    }
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.5rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .feature-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.5rem;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        padding: 1.5rem;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+    .feature-item:hover {
+        transform: translateY(-8px);
+        border-color: var(--primary-color);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+    .feature-icon {
+        flex-shrink: 0;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(45deg, var(--primary-color), var(--primary-color-light));
+        color: white;
+        font-size: 1.8rem;
+        box-shadow: 0 8px 15px var(--primary-shadow-color);
+    }
+    .feature-content h3 {
+        margin-bottom: 0.5rem;
+        font-size: 1.2rem;
+        color: var(--text-color);
+        font-weight: 600;
+    }
+    .feature-content p {
+        font-size: 0.95rem;
+        color: var(--text-color-light);
+        line-height: 1.6;
+    }
+
+    /* Footer */
+    .footer {
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(139, 0, 0, 0.3) 100%);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border-color);
+      padding: 3rem 2rem 1rem;
+      margin-top: 3rem;
+      position: relative;
+      z-index: 5;
+      transition: background 0.4s ease, border-color 0.4s ease;
+    }
+    body.light-mode .footer {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(220, 220, 230, 0.5) 100%);
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+
+    .brand-section .logo {
+      filter: brightness(1.2) drop-shadow(0 0 10px var(--primary-shadow-color));
+    }
+
+    .brand-description {
+      margin: 1rem 0;
+      color: var(--text-color-light);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(45deg, var(--primary-color), var(--primary-color-light));
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+      font-weight: 500;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px var(--primary-shadow-hover);
+    }
+
+    .footer-section h3 {
+      margin-bottom: 1.5rem;
+      color: var(--primary-color-light);
+      font-size: 1.2rem;
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.8rem;
+    }
+
+    .footer-links a {
+      color: var(--text-color-light);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: inline-block;
+    }
+
+    .footer-links a:hover {
+      color: var(--primary-color);
+      transform: translateX(5px);
+    }
+    
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 0.8rem;
+      color: var(--text-color-light);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .contact-item:hover {
+      color: var(--primary-color);
+    }
+
+    .contact-item i {
+      color: var(--primary-color);
+      font-size: 1.2rem;
+      width: 18px;
+      text-align: center;
+    }
+
+    .social-icons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .social-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(45deg, rgba(255, 71, 87, 0.2), rgba(255, 107, 107, 0.2));
+      border: 1px solid rgba(255, 71, 87, 0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-color);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      font-size: 1.2rem;
+    }
+
+    .social-icon:hover {
+      background: linear-gradient(45deg, var(--primary-color), var(--primary-color-light));
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px var(--primary-shadow-hover);
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 2rem;
+      margin-top: 2rem;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-color-muted);
+      transition: border-color 0.4s ease, color 0.4s ease;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 1rem;
+        position: relative; /* Remove sticky on mobile for better UX */
+      }
+      .logo {
+        font-size: 1.5rem;
+      }
+      .container {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        padding: 0 1rem;
+      }
+      .services-container, .features-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      .slider {
+        height: 250px;
+      }
+      h2, .section-title {
+        font-size: 1.8rem;
+      }
+      .footer-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .footer-links a:hover, .download-btn:hover {
+        transform: none;
+      }
+      .brand-description, .contact-item, .social-icons {
+        justify-content: center;
+      }
+      .feature-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+    }
+
+    /* === DEALS SECTION STYLES === */
+.deals-section {
+    padding: 4rem 2rem;
+    position: relative;
+    z-index: 5;
+    background: rgba(0, 0, 0, 0.2);
+    margin: 3rem 0;
+    overflow: hidden;
+}
+
+.deals-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    align-items: center;
+    gap: 3rem;
+}
+
+.deals-content .section-title {
+    text-align: left;
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.deals-content .section-description {
+    text-align: left;
+    margin: 0 0 2rem 0;
+    max-width: 500px;
+}
+
+.newsletter-form {
+    display: flex;
+    gap: 1rem;
+    max-width: 500px;
+}
+
+.newsletter-form .input-wrapper {
+    position: relative;
+    flex-grow: 1;
+}
+
+.newsletter-form .input-wrapper i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-color-muted);
+    font-size: 1.2rem;
+}
+
+.newsletter-form input {
+    width: 100%;
+    padding: 0.9rem 1rem 0.9rem 3rem;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    color: var(--text-color);
+    font-size: 1rem;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+}
+
+.newsletter-form input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 15px var(--primary-shadow-color);
+}
+
+.newsletter-form button {
+    padding: 0.9rem 2rem;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(45deg, var(--primary-color), var(--primary-color-light));
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.newsletter-form button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px var(--primary-shadow-hover);
+}
+
+.deals-graphic {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+}
+
+.deals-graphic i {
+    font-size: 250px;
+    opacity: 0.15;
+    transform: rotate(-15deg);
+    text-shadow: 0 0 50px var(--primary-shadow-hover);
+}
+
+.deals-graphic span {
+    position: absolute;
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--text-color);
+    text-align: center;
+    line-height: 1;
+    text-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    background: linear-gradient(45deg, var(--primary-color-light), var(--primary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+
+/* === PARTNERS SECTION STYLES === */
+.partners-section {
+    background: linear-gradient(135deg, #e97c7c69 0%, #6a0c0cf0 25%, #943535 50%, #550505 75%, #5f0c0c 100%);
+    padding: 3rem 2rem;
+    position: relative;
+    z-index: 5;
+}
+
+.partners-logos {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+}
+
+.payment-methods {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 50px;
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    color: var(--text-color-muted);
+}
+.payment-methods i {
+    font-size: 1.8rem;
+    color: var(--text-color-light);
+}
+
+.partner-logo-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 3rem;
+}
+
+.partner-logo-grid img {
+    /* height: 87px; */
+    width:  180px;
+    filter: brightness(0.8) ;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.partner-logo-grid img:hover {
+    filter: none;
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.partner-placeholder {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color-muted);
+    font-style: italic;
+}
+
+/* --- Responsive Adjustments for New Sections --- */
+@media (max-width: 900px) {
+    .deals-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    .deals-content .section-title,
+    .deals-content .section-description {
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .newsletter-form {
+        flex-direction: column;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    .deals-graphic {
+        margin-top: 2rem;
+    }
+     .deals-graphic i {
+        font-size: 200px;
+    }
+    .deals-graphic span {
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .payment-methods {
+        flex-direction: column;
+        gap: 1rem;
+        border-radius: 20px;
+    }
+    .partner-logo-grid {
+        gap: 2rem;
+    }
+    .partner-logo-grid img {
+        width: 100px;
+    }
+}
+
+/* === HOW IT WORKS SECTION STYLES === */
+.how-it-works-section {
+  padding: 4rem 2rem;
+  position: relative;
+  z-index: 5;
+  overflow: hidden;
+}
+
+.how-it-works-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 3rem;
+}
+
+.how-it-works-content {
+  padding-right: 2rem; /* Add some space between text and image */
+}
+
+.how-it-works-content .section-title {
+  text-align: left;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.how-it-works-content .section-description {
+  text-align: left;
+  margin: 0 0 2.5rem 0;
+  line-height: 1.8;
+  color: var(--text-color-light);
+  font-size: 1.1rem;
+}
+
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  color: white;
+  background: linear-gradient(45deg, var(--primary-color), var(--primary-color-light));
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 8px 20px var(--primary-shadow-color);
+}
+
+.cta-button:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 12px 25px var(--primary-shadow-hover);
+}
+
+.cta-button i {
+  transition: transform 0.3s ease;
+}
+
+.cta-button:hover i {
+  transform: translateX(5px);
+}
+
+.how-it-works-image {
+  text-align: center;
+}
+
+.how-it-works-image img {
+  max-width: 100%;
+  height: auto;
+  max-height: 500px; /* Control max height */
+  filter: drop-shadow(0px 10px 30px var(--primary-shadow-hover));
+}
+
+/* --- Responsive Adjustments for How It Works Section --- */
+@media (max-width: 900px) {
+  .how-it-works-container {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  
+  .how-it-works-content {
+    padding-right: 0;
+    margin-bottom: 2rem;
+  }
+
+  .how-it-works-content .section-title,
+  .how-it-works-content .section-description {
+    text-align: center;
+  }
+}
+  </style>
 </head>
 <body>
   <header class="navbar">
@@ -15,10 +997,10 @@
       <i class="ri-account-circle-line"></i>
       <i class="ri-notification-3-line"></i>
       <div class="toggle-container">
-            <label class="toggle-switch">
-                <input type="checkbox" id="mode-toggle">
-                <span class="slider-toggle"></span>
-            </label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="mode-toggle">
+          <span class="slider-toggle"></span>
+        </label>
       </div>
     </div>
   </header>
@@ -31,11 +1013,12 @@
       <div class="slide">
         <img src="https://app4.gametosa.com/files/img/slid/1645702338906222.png" alt="Esports Poster">
       </div>
+      <div class="slide">
+        <img src="https://cdna.artstation.com/p/assets/images/images/051/308/250/large/sourav-das-valorant-champions-tour-2022-banner-sourav-das.jpg?1656965154" alt="Valorant Champions Tour">
+      </div>
     </div>
     <div class="indicators">
-      <span class="dot active"></span>
-      <span class="dot"></span>
-    </div>
+      </div>
   </main>
 
   <h2>Shop By Popular Categories</h2>
@@ -81,6 +1064,297 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <section class="services-section">
+    <h2 class="section-title">Gaming & Digital Vouchers</h2>
+    <div class="services-container">
+      <div class="service-card">
+        <div class="card-image">
+          <img class="card-logo" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNzkuODEgMTQxLjkzYy0zLjc0IDAtNi45My0yLjg5LTYuOTMtNi43MnYtMTguNzdjMC0zLjgzIDMuMTktNi43MSA2LjkzLTYuNzFoNi4xMXYtNi45aC02LjExYy03Ljc1IDAtMTMuMDQgNS4yLTEzLjA0IDEzLjYxdjE4Ljc3YzAgOC40MiA1LjI5IDEzLjYyIDEzLjA0IDEzLjYyaDYuMTF2LTYuOWgtNi4xMVptNDcuMDQgMTMuNjJoNi45NFY5OS40MWgtNi45NHY1Ni4xNFptMjAuNDEtMzkuOTJjLTYuMDMgMC05Ljg0IDQuNjctOS44NCA5Ljk4djEzLjc0YzAgNS4zMSAzLjgxIDkuOTggOS44NCA5Ljk4aDEuNDFjNi4wMyAwIDkuODQtNC42NyA5Ljg0LTkuOTh2LTEzLjc0YzAtNS4zMS0zLjgxLTkuOTgtOS44NC05Ljk4aC0xLjQxWm0tNi45MyAyMy43MmMwIDMuODMgMy4xOSA2LjcxIDYuOTMgNi43MWgxLjQxYzMuNzQgMCA2LjkzLTIuODggNi45My02Ljcxdi0xMy43NGMwLTMuODMtMy4xOS02LjcxLTYuOTMtNi43MWgtMS40MWMtMy43NCAwLTYuOTMgMi44OC02LjkzIDYuNzF2MTMuNzRabTM0LjUtMjMuNzJoNi45NHY1MC4xNGgtNi45NHYtNTAuMTRabS02MS43OS0xMy42MWg2LjkzdjEzLjYxaC02Ljkzdi0xMy42MVoiIGZpbGw9InVybCgjYikiLz48cGF0aCBkPSJtMTE5LjcgMTM1LjAxYy0uMS0xLjQ1LS4yOS0yLjg2LS41Ni00LjIxIDAtLjA0IDAtLjA3LS4wMi0uMTItMS42MS04Ljk1LTYuNjEtMTQuNjgtMTQuMjgtMTQuNjhoLTEyLjQ4djM2LjEzaDYuOTR2LTI5LjJoNS41NGMxMC4xIDAgMTMuNDkgNi42OCAxNC4zMyAxNC44N2wtMi4xOS0uMDMuNTYgMTQuNDloNi45M2wtLjMyLTE0LjQ5WiIgZmlsbD0idXJsCgjYikiLz48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImIiIHgxPSI2Mi44OCIgeDI9IjE4Ny4xMiIgeTE9IjE2Mi42MiIgeTI9IjgzLjM4IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHN0b3Agc3RvcC1jb2xvcj0iI2ZmZiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2ZmZiIgc3RvcC1vcGFjaXR5PSIuNyIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjwvc3ZnPg==" alt="BGMI Logo">
+        </div>
+        <div class="card-content">
+          <h3 class="service-title">BGMI UC Top-up</h3>
+          <div class="cashback-info">
+            <div class="cashback-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17L4 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="cashback-text">Get 10% Cashback</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="card-image">
+          <img class="card-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik03LjYwMyAxNC4wNThMMCAwaDEuNzYybDUuMDM1IDkuNDg4TDExLjgyNSAwSDE2TC4xIDguMzk3IDE0LjA1OEg3LjYwM1ptLjAxNS0xLjY0NmgyLjk4MUwxNC4xOSAxLjYxM2gtMi4xNkw4Ljk2IDkuMjM0aC0uMDM2TDYuODUgMy43NTdoLS4wMzZMNC43NDUgOS4yMzRIMS44ODNsNS43MzggOS4xNzl6Ii8+PC9zdmc+" alt="Valorant Logo">
+        </div>
+        <div class="card-content">
+          <h3 class="service-title">Valorant Points</h3>
+          <div class="cashback-info">
+            <div class="cashback-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17L4 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="cashback-text">Get 10% Cashback</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="card-image">
+          <img class="card-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Im0xMiAyYy01LjUyIDAtMTAgNC40OC0xMCAxMHM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTAtNC40OC0xMC0xMC0xMHptNSAxNWwtNS0zbC01IDN2LTEwaDEwdjEweiIvPjwvc3ZnPg==" alt="Steam Logo">
+        </div>
+        <div class="card-content">
+            <h3 class="service-title">Steam Wallet Code</h3>
+            <div class="cashback-info">
+              <div class="cashback-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17L4 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <span class="cashback-text">Instant Delivery</span>
+            </div>
+        </div>
+      </div>
+      
+       <div class="service-card">
+        <div class="card-image">
+           <img class="card-logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDhweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iNDhweCIgZmlsbD0iI2ZmZmZmZiI+PHBhdGggZD0iTTAgMGgyNHYyNEgwVjB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTE1IDR2OEg0djJoMTF2M2wtNC00LTQgNHYtM0gwdjExaDI0VjRoLTl6bS05IDZoOVY2SDZ2NHptOSAxMkg2di00aDl2NHptMC01SDZWOWh5djJ6Ii8+PC9zdmc+" alt="Google Play Logo">
+        </div>
+        <div class="card-content">
+            <h3 class="service-title">Google Play Voucher</h3>
+            <div class="cashback-info">
+              <div class="cashback-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17L4 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <span class="cashback-text">Get 5% Bonus</span>
+            </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="why-us-section">
+      <h2 class="section-title">Why Top Up With Gameonix?</h2>
+      <p class="section-description">
+          Millions of gamers count on Gameonix every month for a seamless purchase experience when buying game credits or vouchers. No registration or log-in is required, and purchases are added to your game account instantly. Top-up popular titles and more, right here!
+      </p>
+      <div class="features-grid">
+          <div class="feature-item">
+              <div class="feature-icon"><i class="ri-rocket-2-line"></i></div>
+              <div class="feature-content">
+                  <h3>Easy and Fast</h3>
+                  <p>It only takes a few seconds to complete a purchase. No lengthy forms, just quick and simple checkout.</p>
+              </div>
+          </div>
+          <div class="feature-item">
+              <div class="feature-icon"><i class="ri-gift-2-line"></i></div>
+              <div class="feature-content">
+                  <h3>Instant Delivery</h3>
+                  <p>When you top-up on Gameonix, your purchase is delivered directly to your game account as soon as your payment is complete.</p>
+              </div>
+          </div>
+          <div class="feature-item">
+              <div class="feature-icon"><i class="ri-bank-card-line"></i></div>
+              <div class="feature-content">
+                  <h3>Convenient Payments</h3>
+                  <p>To ensure your convenience, we have partnered with the most popular payment providers in India.</p>
+              </div>
+          </div>
+          <div class="feature-item">
+              <div class="feature-icon"><i class="ri-price-tag-3-line"></i></div>
+              <div class="feature-content">
+                  <h3>Exciting Promotions</h3>
+                  <p>Keep a lookout for the best deals for your favourite games with Gameonix promotions and special offers.</p>
+              </div>
+          </div>
+           <div class="feature-item">
+              <div class="feature-icon"><i class="ri-customer-service-2-line"></i></div>
+              <div class="feature-content">
+                  <h3>Customer Support</h3>
+                  <p>Our support team is available from 9 AM to 9:30 PM (GMT+5:30), 7 days a week to assist you with any query.</p>
+              </div>
+          </div>
+           <div class="feature-item">
+              <div class="feature-icon"><i class="ri-shield-check-line"></i></div>
+              <div class="feature-content">
+                  <h3>Secure & Anonymous</h3>
+                  <p>Enjoy a secure top-up experience with no registration or log-in required, keeping your data safe.</p>
+              </div>
+          </div>
+      </div>
+  </section>
+  <section class="deals-section">
+    <div class="deals-container">
+        <div class="deals-content">
+            <h2 class="section-title">Deals Just For You</h2>
+            <p class="section-description">
+                Sign up to receive exclusive offers and the best deals directly in your inbox.
+            </p>
+            <form class="newsletter-form">
+                <div class="input-wrapper">
+                    <i class="ri-mail-line"></i>
+                    <input type="email" placeholder="Your Email Address..." required>
+                </div>
+                <button type="submit">Sign Up</button>
+            </form>
+        </div>
+        <div class="deals-graphic">
+            <i class="ri-coupon-3-fill"></i>
+            <span>Big<br>Deals</span>
+        </div>
+    </div>
+</section>
+<section class="partners-section">
+    <h2 class="section-title">Our Partners</h2>
+    <div class="partners-logos">
+        <!-- <div class="payment-methods">
+            <span>Our Payment Methods:</span>
+            <i class="ri-bank-card-line" title="UPI"></i>
+            <i class="ri-paypal-line" title="PhonePe"></i>
+            <i class="ri-visa-line" title="RuPay"></i>
+        </div> -->
+        <div class="partner-logo-grid">
+            <img src="https://gametosa.com/store/img/gauravgo.png" alt="GauravGo Logo">
+            <img src="https://gametosa.com/store/img/narqubisblue.png" alt="Narqubis Logo">
+            <img src="https://gametosa.com/store/img/xsquads.png" alt="XSquads Logo">
+            <img src="https://gametosa.com/store/img/metashot.png" alt="Metashot Logo">
+            <img src="https://gametosa.com/store/img/sherlock.png" alt="Sherlock Studio Logo">
+            <div class="partner-placeholder">
+                <span>and more...</span>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="how-it-works-section">
+  <div class="how-it-works-container">
+    <div class="how-it-works-content">
+      <h2 class="section-title">How Does It Work?</h2>
+      <p class="section-description">
+        A simple API integration enables game publishers and digital content providers to sell in-game currencies, bundles, subscriptions, and more on our marketplace.
+      </p>
+      <a href="#" class="cta-button">
+        <span>Get Started</span>
+        <i class="ri-arrow-right-line"></i>
+      </a>
+    </div>
+    <div class="how-it-works-image">
+      <img src="https://gametosa.com/store/img/shopwall.png" alt="Phone displaying digital vouchers marketplace">
+    </div>
+  </div>
+</section>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-section brand-section">
+        <div class="logo"><img src="https://gameonix.in/web/gameonix/images/gameonix_favicon.png" alt="" srcset="" style="width: 99px;"></div>
+        <p class="brand-description">Your one-stop shop for gaming top-ups, digital vouchers, and peripherals. Level up your game with us!</p>
+        <a href="#" class="download-btn"><i class="ri-android-fill"></i> Download App</a>
+      </div>
+      <div class="footer-section">
+        <h3>Quick Links</h3>
+        <ul class="footer-links">
+          <li><a href="#">Home</a></li>
+          <li><a href="#">Categories</a></li>
+          <li><a href="#">Promotions</a></li>
+          <li><a href="#">Support</a></li>
+          <li><a href="#">Blog</a></li>
+        </ul>
+      </div>
+       <div class="footer-section">
+        <h3>Support</h3>
+        <ul class="footer-links">
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Refund Policy</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Contact Us</h3>
+        <div class="contact-info">
+            <div class="contact-item">
+                <i class="ri-mail-send-line"></i>
+                <span>support@gameonix.com</span>
+            </div>
+             <div class="contact-item">
+                <i class="ri-phone-line"></i>
+                <span>+91 123 456 7890</span>
+            </div>
+        </div>
+        <div class="social-icons">
+          <a href="#" class="social-icon"><i class="ri-facebook-fill"></i></a>
+          <a href="#" class="social-icon"><i class="ri-twitter-x-line"></i></a>
+          <a href="#" class="social-icon"><i class="ri-instagram-line"></i></a>
+          <a href="#" class="social-icon"><i class="ri-discord-fill"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2025 Gameonix. All Rights Reserved.
+    </div>
+  </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Image Slider Functionality
+    const slides = document.querySelectorAll('.slide');
+    const indicatorsContainer = document.querySelector('.indicators');
+    let currentSlide = 0;
+    let slideInterval;
+
+    // Create dots dynamically
+    if (slides.length > 0) {
+        slides.forEach((slide, index) => {
+            const dot = document.createElement('span');
+            dot.classList.add('dot');
+            dot.addEventListener('click', () => {
+                showSlide(index);
+                resetInterval();
+            });
+            indicatorsContainer.appendChild(dot);
+        });
+
+        const dots = document.querySelectorAll('.dot');
+
+        function showSlide(index) {
+            if (index >= slides.length) {
+                index = 0;
+            } else if (index < 0) {
+                index = slides.length - 1;
+            }
+
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+
+            slides[index].classList.add('active');
+            dots[index].classList.add('active');
+            currentSlide = index;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function resetInterval() {
+            clearInterval(slideInterval);
+            slideInterval = setInterval(nextSlide, 5000); // Change slide every 5 seconds
+        }
+        
+        // Initial setup
+        showSlide(0);
+        resetInterval();
+    }
+
+
+    // Light/Dark Mode Toggle Functionality
+    const modeToggle = document.getElementById('mode-toggle');
+    const body = document.body;
+
+    modeToggle.addEventListener('change', () => {
+        if (modeToggle.checked) {
+            body.classList.add('light-mode');
+        } else {
+            body.classList.remove('light-mode');
+        }
+    });
+});
+</script>
+
 </body>
 </html>
